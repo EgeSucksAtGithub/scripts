@@ -1,12 +1,41 @@
-for _, item in pairs(workspace:GetDescendants()) do
-	if item:IsA("Humanoid") then
-		local highlight = Instance.new("Highlight")
-		local parent = item.Parent
-		if parent then
-			local plr = game.Players:GetPlayerFromCharacter(parent)
-			if not plr then
-				highlight.Parent = parent
-			end
-		end
-	end
+local player = game.Players.LocalPlayer
+local character = player.Character
+local range = 100
+
+local function updateHighlights()
+    if character then
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            for _, item in pairs(workspace:GetDescendants()) do
+                if item:IsA("Humanoid") then
+                    local parent = item.Parent
+                    if parent and not game.Players:GetPlayerFromCharacter(parent) then
+                        local targetRoot = parent:FindFirstChild("HumanoidRootPart")
+                        if targetRoot then
+                            
+                            local distance = (rootPart.Position - targetRoot.Position).Magnitude
+                            local existingHighlight = parent:FindFirstChildOfClass("Highlight")
+
+                            if distance <= range then
+                                if not existingHighlight then
+                                    local highlight = Instance.new("Highlight")
+                                    highlight.Parent = parent
+                                end
+                            else
+                                if existingHighlight then
+                                    existingHighlight:Destroy()
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+
+while true do
+    updateHighlights()
+    wait(1)
 end
